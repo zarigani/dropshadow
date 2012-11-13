@@ -67,13 +67,24 @@ int main(int argc, char *argv[])
 {
 //    return NSApplicationMain(argc, (const char **)argv);
         
-    //影付きイメージを生成する
-    NSImage *image = [[NSImage alloc] initWithContentsOfFile:[NSString stringWithUTF8String:argv[1]]];
-    NSImage *shadowImage = dropshadowImage(image);
-    saveImageByPNG(shadowImage, @"output.png");
+    //ファイルパスをパースしておく
+//    NSString *aPath = @"~/a/b/c.d.e";
+    NSString *aPath = [NSString stringWithUTF8String:argv[1]];
+    NSString *fPath = [aPath stringByStandardizingPath];        // /Users/HOME/a/b/c.d.e
+    NSString *fDir = [fPath stringByDeletingLastPathComponent]; // /Users/HOME/a/b
+    NSString *fNameExt = [fPath lastPathComponent];             // c.d.e
+    NSString *fExt = [fPath pathExtension];                     // e
+    NSString *fDirName = [fPath stringByDeletingPathExtension]; // /Users/HOME/a/b/c.d
+//    NSLog(@"name.ext=%@  ext=%@  dir=%@  dir/name=%@", fNameExt, fExt, fDir, fDirName);
+    NSString *shadowPath = [[fDirName stringByAppendingString:@"-shadow."] stringByAppendingString:fExt];
     
-    //画像情報を出力する（）
+    //影付きイメージを生成する
+    NSImage *image = [[NSImage alloc] initWithContentsOfFile:fPath];
+    NSImage *shadowImage = dropshadowImage(image);
+    saveImageByPNG(shadowImage, shadowPath);
+    
+    //画像情報を出力する
     NSRect align = [shadowImage alignmentRect];
-    NSLog(@"(%f, %f, %f, %f)", align.origin.x, align.origin.y, align.size.width, align.size.height);
+    NSLog(@"%@ (%f, %f, %f, %f)", shadowPath, align.origin.x, align.origin.y, align.size.width, align.size.height);
     return 0;
 }
